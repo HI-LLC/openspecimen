@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+  xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+  http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+  <changeSet author="vpawar" id="Entity search keywords">
+    <createTable tableName="OS_SEARCH_ENTITY_KEYWORDS">
+      <column name="IDENTIFIER" type="${int.type}" autoIncrement="${autoIncrement}">
+        <constraints nullable="false" primaryKey="true"/>
+      </column>
+      <column name="ENTITY" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="ENTITY_ID" type="${int.type}">
+        <constraints nullable="false"/>
+      </column>
+      <column name="NAME" type="${text.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="VALUE" type="${text.type}(255)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="STATUS" type="${tinyint.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Entity search keyword auto ID generator" dbms="oracle">
+    <createSequence sequenceName="OS_SEARCH_ENTITY_KEYWORDS_SEQ" startValue="1" incrementBy="1" ordered="true"/>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index to fasten search for keywords using entity metadata">
+    <createIndex tableName="OS_SEARCH_ENTITY_KEYWORDS" indexName="OS_SEARCH_ENTITY_META_IDX">
+      <column name="ENTITY"/>
+      <column name="ENTITY_ID"/>
+      <column name="NAME"/>
+      <column name="STATUS"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index to fasten search for entity keywords">
+    <createIndex tableName="OS_SEARCH_ENTITY_KEYWORDS" indexName="OS_SEARCH_ENTITY_KEYWORDS_IDX">
+      <column name="VALUE"/>
+      <column name="STATUS"/>
+      <column name="ENTITY"/>
+      <column name="ENTITY_ID"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Stored procedure to insert entity keywords in the search table" runOnChange="true" dbms="mysql">
+    <sql>
+      drop procedure if exists insert_entity_keywords;
+    </sql>
+
+    <sql endDelimiter="//">
+      create procedure insert_entity_keywords(in table_name varchar(30), in column_name varchar(30), in entity_name varchar(64), in prop_name varchar(64))
+      begin
+        set @insert_keywords = concat(
+          'insert into
+             os_search_entity_keywords(entity, entity_id, name, value, status)
+          select \'',
+            entity_name, '\', identifier, \'', prop_name, '\', ', column_name, ', 1
+          from ',
+            table_name,
+        ' where
+            activity_status != \'Disabled\' and ',
+            column_name, ' is not null');
+
+        prepare insert_keywords from @insert_keywords;
+        execute insert_keywords;
+        deallocate prepare insert_keywords;
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Stored procedure to insert entity keywords in the search table" runOnChange="true" dbms="oracle">
+    <sql endDelimiter="//">
+      create or replace procedure insert_entity_keywords(table_name in varchar2, column_name in varchar2, entity_name in varchar2, prop_name in varchar2) AUTHID CURRENT_USER is
+      begin
+        execute immediate '
+          insert into
+            os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+          select
+            os_search_entity_keywords_seq.nextval, ''' || entity_name || ''', identifier, ''' || prop_name || ''', ' || column_name || ', 1
+          from
+           ' || table_name ||
+           ' where activity_status != ''Disabled'' and ' || column_name || ' is not null';
+      end;
+      //
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate registration PPID search keyword">
+    <sql>call insert_entity_keywords('catissue_coll_prot_reg', 'protocol_participant_id', 'collection_protocol_registration', 'ppid');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate participant eMPI, UID, and MRN search keywords">
+    <sql>call insert_entity_keywords('catissue_participant', 'empi_id', 'participant', 'empi');</sql>
+    <sql>call insert_entity_keywords('catissue_participant', 'social_security_number', 'participant', 'uid');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate participant MRN search keywords" dbms="mysql">
+    <sql>
+      insert into
+        os_search_entity_keywords(entity, entity_id, name, value, status)
+      select
+        'participant', p.identifier, 'medicalRecordNumber', pmi.medical_record_number, 1
+      from
+        catissue_part_medical_id pmi
+        inner join catissue_participant p on p.identifier = pmi.participant_id
+      where
+        p.activity_status != 'Disabled' and
+        pmi.medical_record_number is not null;
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate participant MRN search keywords" dbms="oracle">
+    <sql>
+      insert into
+        os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+      select
+        os_search_entity_keywords_seq.nextval, 'participant', p.identifier, 'medicalRecordNumber', pmi.medical_record_number, 1
+      from
+        catissue_part_medical_id pmi
+        inner join catissue_participant p on p.identifier = pmi.participant_id
+      where
+        p.activity_status != 'Disabled' and
+        pmi.medical_record_number is not null;
+    </sql>
+  </changeSet>
+
+
+  <changeSet author="vpawar" id="Populate visit name and SPR no. search keywords">
+    <sql>call insert_entity_keywords('catissue_specimen_coll_group', 'name', 'visit', 'name');</sql>
+    <sql>call insert_entity_keywords('catissue_specimen_coll_group', 'surgical_pathology_number', 'visit', 'surgicalPathologyNumber');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate specimen label and barcode search keywords">
+    <sql>call insert_entity_keywords('catissue_specimen', 'label', 'specimen', 'label');</sql>
+    <sql>call insert_entity_keywords('catissue_specimen', 'barcode', 'specimen', 'barcode');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate container name and barcode search keywords">
+    <sql>call insert_entity_keywords('os_storage_containers', 'name', 'storage_container', 'name');</sql>
+    <sql>call insert_entity_keywords('os_storage_containers', 'barcode', 'storage_container', 'barcode');</sql>
+  </changeSet>
+</databaseChangeLog>
