@@ -1,6 +1,8 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
@@ -47,11 +49,11 @@ public class DefaultSearchEntityKeywordProvider extends AbstractSearchEntityKeyw
 	}
 
 	@Override
-	public Long getEntityId(Object entity) {
+	public Set<Long> getEntityIds(Object entity) {
 		if (entity instanceof BaseEntity) {
-			return ((BaseEntity) entity).getId();
+			return Collections.singleton(((BaseEntity) entity).getId());
 		} else {
-			return null;
+			return Collections.emptySet();
 		}
 	}
 

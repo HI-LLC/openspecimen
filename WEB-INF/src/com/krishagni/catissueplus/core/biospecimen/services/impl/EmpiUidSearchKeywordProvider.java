@@ -7,17 +7,16 @@ import java.util.stream.Collectors;
 
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
-import com.krishagni.catissueplus.core.biospecimen.domain.ParticipantMedicalIdentifier;
 import com.krishagni.catissueplus.core.common.service.impl.AbstractSearchEntityKeywordProvider;
 import com.krishagni.catissueplus.core.common.util.Status;
 
-public class MrnSearchKeywordProvider extends AbstractSearchEntityKeywordProvider {
-	private static final List<String> PROPS = Arrays.asList("medicalRecordNumber");
+public class EmpiUidSearchKeywordProvider extends AbstractSearchEntityKeywordProvider {
+	private static final List<String> PROPS = Arrays.asList("uid", "empi");
 
 	@Override
 	public Set<Long> getEntityIds(Object entity) {
-		ParticipantMedicalIdentifier pmi = (ParticipantMedicalIdentifier) entity;
-		return pmi.getParticipant().getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
+		Participant participant = (Participant) entity;
+		return participant.getCprs().stream().map(CollectionProtocolRegistration::getId).collect(Collectors.toSet());
 	}
 
 	@Override
@@ -31,13 +30,12 @@ public class MrnSearchKeywordProvider extends AbstractSearchEntityKeywordProvide
 	}
 
 	@Override
-	public String getEntity() {
-		return ParticipantMedicalIdentifier.class.getName();
+	public boolean isEntityDeleted(Object entity) {
+		return Status.ACTIVITY_STATUS_DISABLED.equals(((Participant) entity).getActivityStatus());
 	}
 
 	@Override
-	public boolean isEntityDeleted(Object entity) {
-		ParticipantMedicalIdentifier pmi = (ParticipantMedicalIdentifier) entity;
-		return Status.ACTIVITY_STATUS_DISABLED.equals(pmi.getParticipant().getActivityStatus());
+	public String getEntity() {
+		return Participant.class.getName();
 	}
 }

@@ -2,6 +2,7 @@ package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +14,6 @@ import org.hibernate.persister.entity.EntityPersister;
 import com.krishagni.catissueplus.core.common.Pair;
 import com.krishagni.catissueplus.core.common.domain.SearchEntityKeyword;
 import com.krishagni.catissueplus.core.common.service.SearchEntityKeywordProvider;
-import com.krishagni.catissueplus.core.common.util.Status;
 
 public abstract class AbstractSearchEntityKeywordProvider implements SearchEntityKeywordProvider {
 	@Override
@@ -31,7 +31,7 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 		return getKeywords(event.getEntity(), event.getPersister(), event.getDeletedState(), null);
 	}
 
-	public abstract Long getEntityId(Object entity);
+	public abstract Set<Long> getEntityIds(Object entity);
 
 	public abstract List<String> getKeywordProps();
 
@@ -39,20 +39,20 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 
 	public abstract boolean isEntityDeleted(Object entity);
 
-	private List<SearchEntityKeyword> getKeywords(Object entity, EntityPersister persister, Object[] oldState, Object[] newState) {
+	protected List<SearchEntityKeyword> getKeywords(Object entity, EntityPersister persister, Object[] oldState, Object[] newState) {
 		int op = oldState != null && newState != null ? 1 : (oldState != null ? 2 : (newState != null ? 0 : -1));
-		Long entityId = getEntityId(entity);
+		Set<Long> entityIds = getEntityIds(entity);
 
 		List<SearchEntityKeyword> keywords = new ArrayList<>();
 		if (op == 2) {
-			keywords = getKeywordProps().stream()
-				.map(prop -> createKeyword(entityId, prop, getProperty(prop, persister, oldState), null, op))
-				.collect(Collectors.toList());
+			for (String prop : getKeywordProps()) {
+				keywords.addAll(createKeywords(entityIds, prop, getProperty(prop, persister, oldState), null, op));
+			}
 		} else {
 			for (String prop : getKeywordProps()) {
 				Pair<String, String> values = getProperty(prop, persister, oldState, newState);
 				if (!StringUtils.equals(values.first(), values.second())) {
-					keywords.add(createKeyword(entityId, prop, values.first(), values.second(), op));
+					keywords.addAll(createKeywords(entityIds, prop, values.first(), values.second(), op));
 				}
 			}
 
@@ -64,16 +64,18 @@ public abstract class AbstractSearchEntityKeywordProvider implements SearchEntit
 		return keywords;
 	}
 
-	private SearchEntityKeyword createKeyword(Long entityId, String property, String oldValue, String value, int op) {
-		SearchEntityKeyword keyword = new SearchEntityKeyword();
-		keyword.setEntity(getEntityName());
-		keyword.setEntityId(entityId);
-		keyword.setKey(property);
-		keyword.setValue(value);
-		keyword.setStatus(1);
-		keyword.setOp(op);
-		keyword.setOldValue(oldValue);
-		return keyword;
+	private List<SearchEntityKeyword> createKeywords(Set<Long> entityIds, String property, String oldValue, String value, int op) {
+		return entityIds.stream().map(entityId -> {
+			SearchEntityKeyword keyword = new SearchEntityKeyword();
+			keyword.setEntity(getEntityName());
+			keyword.setEntityId(entityId);
+			keyword.setKey(property);
+			keyword.setValue(value);
+			keyword.setStatus(1);
+			keyword.setOp(op);
+			keyword.setOldValue(oldValue);
+			return keyword;
+		}).collect(Collectors.toList());
 	}
 
 	private Pair<String, String> getProperty(String propertyName, EntityPersister persister, Object[] oldState, Object[] newState) {

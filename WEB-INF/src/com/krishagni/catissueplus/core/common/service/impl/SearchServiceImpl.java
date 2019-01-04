@@ -1,9 +1,14 @@
 package com.krishagni.catissueplus.core.common.service.impl;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.SessionFactory;
@@ -23,23 +28,26 @@ import org.hibernate.persister.entity.EntityPersister;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.biospecimen.repository.DaoFactory;
+import com.krishagni.catissueplus.core.common.PlusTransactional;
 import com.krishagni.catissueplus.core.common.domain.SearchEntityKeyword;
+import com.krishagni.catissueplus.core.common.errors.OpenSpecimenException;
+import com.krishagni.catissueplus.core.common.events.ResponseEvent;
+import com.krishagni.catissueplus.core.common.events.SearchResult;
 import com.krishagni.catissueplus.core.common.repository.SearchEntityKeywordDao;
 import com.krishagni.catissueplus.core.common.service.SearchEntityKeywordProvider;
+import com.krishagni.catissueplus.core.common.service.SearchResultProcessor;
 import com.krishagni.catissueplus.core.common.service.SearchService;
 
 public class SearchServiceImpl implements SearchService, InitializingBean {
-	private Map<String, SearchEntityKeywordProvider> entityKeywordProviders = new HashMap<>();
-
 	private SessionFactory sessionFactory;
 
 	private DaoFactory daoFactory;
 
-	private Map<Transaction, KeywordProcessor> processors = new HashMap<>();
+	private Map<String, SearchEntityKeywordProvider> entityKeywordProviders = new HashMap<>();
 
-	public void setEntityKeywordProviders(List<SearchEntityKeywordProvider> providers) {
-		providers.forEach(provider -> entityKeywordProviders.put(provider.getEntity(), provider));
-	}
+	private Map<String, SearchResultProcessor> resultProcessors = new HashMap<>();
+
+	private Map<Transaction, KeywordProcessor> processors = new HashMap<>();
 
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
@@ -49,9 +57,69 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 		this.daoFactory = daoFactory;
 	}
 
+	public void setEntityKeywordProviders(List<SearchEntityKeywordProvider> providers) {
+		providers.forEach(provider -> entityKeywordProviders.put(provider.getEntity(), provider));
+	}
+
+	public void setResultProcessors(List<SearchResultProcessor> processors) {
+		processors.forEach(processor -> resultProcessors.put(processor.getEntity(), processor));
+	}
+
+	@Override
+	@PlusTransactional
+	public List<SearchResult> search(String searchTerm, int maxResults) {
+		if (StringUtils.isBlank(searchTerm)) {
+			return Collections.emptyList();
+		}
+
+		//
+		// Search for the input keyword
+		//
+		List<SearchEntityKeyword> matches = daoFactory.getSearchEntityKeywordDao().getKeywords(searchTerm, maxResults);
+		List<SearchResult> result = SearchResult.from(matches);
+		if (result.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		//
+		// Prepare matches by entity so that all entity matches can be processed in one go
+		//
+		Map<String, List<SearchResult>> entityMatchesMap = new HashMap<>();
+		for (SearchResult match : result) {
+			List<SearchResult> entityMatches = entityMatchesMap.computeIfAbsent(match.getEntity(), (k) -> new ArrayList<>());
+			entityMatches.add(match);
+		}
+
+		//
+		// Process all entity matches
+		//
+		entityMatchesMap.replaceAll((entity, entityMatches) -> {
+			SearchResultProcessor processor = resultProcessors.get(entity);
+			return processor != null ? processor.process(entityMatches) : entityMatches;
+		});
+
+		//
+		// Remove the entity matches that are not present in the processed matches
+		//
+		Iterator<SearchResult> iter = result.iterator();
+		while (iter.hasNext()) {
+			SearchResult match = iter.next();
+			if (!entityMatchesMap.get(match.getEntity()).contains(match)) {
+				iter.remove();
+			}
+		}
+
+		return result;
+	}
+
 	@Override
 	public void registerKeywordProvider(SearchEntityKeywordProvider provider) {
 		entityKeywordProviders.put(provider.getEntity(), provider);
+	}
+
+	@Override
+	public void registerSearchResultProcessor(SearchResultProcessor processor) {
+		resultProcessors.put(processor.getEntity(), processor);
 	}
 
 	@Override

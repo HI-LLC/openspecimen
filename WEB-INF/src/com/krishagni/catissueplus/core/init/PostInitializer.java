@@ -7,7 +7,9 @@ import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegi
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
 import com.krishagni.catissueplus.core.biospecimen.domain.Visit;
+import com.krishagni.catissueplus.core.biospecimen.services.impl.EmpiUidSearchKeywordProvider;
 import com.krishagni.catissueplus.core.biospecimen.services.impl.MrnSearchKeywordProvider;
+import com.krishagni.catissueplus.core.common.service.SearchEntityKeywordProvider;
 import com.krishagni.catissueplus.core.common.service.SearchService;
 import com.krishagni.catissueplus.core.common.service.impl.DefaultSearchEntityKeywordProvider;
 
@@ -28,8 +30,8 @@ public class PostInitializer implements InitializingBean {
 		);
 
 		addKeywordProvider(CollectionProtocolRegistration.class, CollectionProtocolRegistration.getEntityName(), "ppid");
-		addKeywordProvider(Participant.class, Participant.getEntityName(), "empi,uid");
-		searchSvc.registerKeywordProvider(new MrnSearchKeywordProvider());
+		addKeywordProvider(new EmpiUidSearchKeywordProvider());
+		addKeywordProvider(new MrnSearchKeywordProvider());
 		addKeywordProvider(Visit.class, Visit.getEntityName(), "name,surgicalPathologyNumber");
 		addKeywordProvider(Specimen.class, Specimen.getEntityName(), "label,barcode");
 		addKeywordProvider(StorageContainer.class, StorageContainer.getEntityName(), "name,barcode");
@@ -37,5 +39,9 @@ public class PostInitializer implements InitializingBean {
 
 	private void addKeywordProvider(Class<?> entityClass, String entityName, String keywordProps) {
 		searchSvc.registerKeywordProvider(new DefaultSearchEntityKeywordProvider(entityClass, entityName, keywordProps));
+	}
+
+	private void addKeywordProvider(SearchEntityKeywordProvider provider) {
+		searchSvc.registerKeywordProvider(provider);
 	}
 }

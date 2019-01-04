@@ -1297,6 +1297,22 @@
   <bean id="searchSvc" class="com.krishagni.catissueplus.core.common.service.impl.SearchServiceImpl">
     <property name="sessionFactory" ref="sessionFactory"/>
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
+    <property name="resultProcessors">
+      <list>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.CprSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.VisitSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ContainerSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+      </list>
+    </property>
   </bean>
 
   <task:scheduler id="taskScheduler" pool-size="1"/>
