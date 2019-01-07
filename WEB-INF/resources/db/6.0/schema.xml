@@ -47,6 +47,7 @@
       <column name="STATUS"/>
       <column name="ENTITY"/>
       <column name="ENTITY_ID"/>
+      <column name="NAME"/>
     </createIndex>
   </changeSet>
 
@@ -199,5 +200,30 @@
   <changeSet author="vpawar" id="Populate container name and barcode search keywords">
     <sql>call insert_entity_keywords('os_storage_containers', 'name', 'storage_container', 'name');</sql>
     <sql>call insert_entity_keywords('os_storage_containers', 'barcode', 'storage_container', 'barcode');</sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Search entity sort order or ranks">
+    <createTable tableName="OS_SEARCH_ENTITY_RANKS">
+      <column name="ENTITY" type="${text.type}(64)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="RANK" type="${tinyint.type}">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Index on entity sort order columns">
+    <createIndex tableName="OS_SEARCH_ENTITY_RANKS" indexName="OS_SEARCH_ENTITY_RANKS_IDX">
+      <column name="ENTITY"/>
+      <column name="RANK"/>
+    </createIndex>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Search entity ranks">
+    <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 1);</sql>
+    <sql>insert into os_search_entity_ranks values ('visit', 2);</sql>
+    <sql>insert into os_search_entity_ranks values ('specimen', 3);</sql>
+    <sql>insert into os_search_entity_ranks values ('storage_container', 4);</sql>
   </changeSet>
 </databaseChangeLog>

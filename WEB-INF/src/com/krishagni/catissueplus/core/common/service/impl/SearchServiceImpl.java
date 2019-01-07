@@ -75,7 +75,7 @@ public class SearchServiceImpl implements SearchService, InitializingBean {
 		//
 		// Search for the input keyword
 		//
-		List<SearchEntityKeyword> matches = daoFactory.getSearchEntityKeywordDao().getKeywords(searchTerm, maxResults);
+		List<SearchEntityKeyword> matches = daoFactory.getSearchEntityKeywordDao().getMatches(searchTerm, maxResults);
 		List<SearchResult> result = SearchResult.from(matches);
 		if (result.isEmpty()) {
 			return Collections.emptyList();

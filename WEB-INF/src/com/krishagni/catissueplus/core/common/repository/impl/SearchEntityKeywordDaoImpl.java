@@ -1,5 +1,6 @@
 package com.krishagni.catissueplus.core.common.repository.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -29,15 +30,32 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 	}
 
 	@Override
-	public List<SearchEntityKeyword> getKeywords(String searchTerm, int maxResults) {
-		return getCurrentSession().createCriteria(SearchEntityKeyword.class, "keyword")
-			.add(Restrictions.like("value", searchTerm, MatchMode.START))
+	public List<SearchEntityKeyword> getMatches(String searchTerm, int maxResults) {
+		List<Object[]> rows = getCurrentSession().getNamedSQLQuery(GET_MATCHES)
+			.setParameter("value", searchTerm.toLowerCase() + "%")
 			.setMaxResults(maxResults <= 0 ? 100 : maxResults)
-			.addOrder(OrderBySubstringMatch.asc("value", searchTerm))
 			.list();
+
+		List<SearchEntityKeyword> result = new ArrayList<>();
+		for (Object[] row : rows) {
+			int idx = 0;
+
+			SearchEntityKeyword keyword = new SearchEntityKeyword();
+			keyword.setId((Long) row[idx++]);
+			keyword.setEntity((String) row[idx++]);
+			keyword.setEntityId((Long) row[idx++]);
+			keyword.setKey((String) row[idx++]);
+			keyword.setValue((String) row[idx++]);
+			keyword.setStatus((Integer) row[idx++]);
+			result.add(keyword);
+		}
+
+		return result;
 	}
 
 	private static final String FQN = SearchEntityKeyword.class.getName();
 
 	private static final String GET_KEYWORDS = FQN + ".getKeywords";
+
+	private static final String GET_MATCHES = FQN + ".getMatches";
 }

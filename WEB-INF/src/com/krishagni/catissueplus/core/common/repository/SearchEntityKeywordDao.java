@@ -7,5 +7,5 @@ import com.krishagni.catissueplus.core.common.domain.SearchEntityKeyword;
 public interface SearchEntityKeywordDao extends Dao<SearchEntityKeyword> {
 	List<SearchEntityKeyword> getKeywords(String entity, Long entityId, String key);
 
-	List<SearchEntityKeyword> getKeywords(String searchTerm, int maxResults);
+	List<SearchEntityKeyword> getMatches(String searchTerm, int maxResults);
 }
