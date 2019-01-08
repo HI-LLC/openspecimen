@@ -2393,9 +2393,7 @@
   },
 
    "search": {
-     "error": "Could not find any {{entity}} matching search key {{key}}",
-     "quick_search": "Search {{names}}",
-     "search_for": "Record Type"
+     "title": "Search ..."
    },
    
    "feedback": {

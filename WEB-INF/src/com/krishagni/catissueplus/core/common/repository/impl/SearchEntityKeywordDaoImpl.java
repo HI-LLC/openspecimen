@@ -3,12 +3,6 @@ package com.krishagni.catissueplus.core.common.repository.impl;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.Criteria;
-import org.hibernate.criterion.MatchMode;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
-
-import com.krishagni.catissueplus.core.common.OrderBySubstringMatch;
 import com.krishagni.catissueplus.core.common.domain.SearchEntityKeyword;
 import com.krishagni.catissueplus.core.common.repository.AbstractDao;
 import com.krishagni.catissueplus.core.common.repository.SearchEntityKeywordDao;
@@ -31,8 +25,13 @@ public class SearchEntityKeywordDaoImpl extends AbstractDao<SearchEntityKeyword>
 
 	@Override
 	public List<SearchEntityKeyword> getMatches(String searchTerm, int maxResults) {
+		searchTerm = searchTerm
+			.replaceAll("\\\\", "\\\\\\\\")
+			.replaceAll("_", "\\\\_")
+			.replaceAll("%", "\\\\%");
+
 		List<Object[]> rows = getCurrentSession().getNamedSQLQuery(GET_MATCHES)
-			.setParameter("value", searchTerm.toLowerCase() + "%")
+			.setParameter("value", searchTerm + "%")
 			.setMaxResults(maxResults <= 0 ? 100 : maxResults)
 			.list();
 
