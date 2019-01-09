@@ -180,6 +180,10 @@
     <sql>call insert_entity_keywords('catissue_distribution_protocol', 'irb_identifier', 'distribution_protocol', 'irbId');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate order search keywords">
+    <sql>call insert_entity_keywords('os_orders', 'name', 'distribution_order', 'name');</sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Search entity ranks">
     <sql>insert into os_search_entity_ranks values ('collection_protocol', 1);</sql>
     <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 2);</sql>
