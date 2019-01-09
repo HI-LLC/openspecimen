@@ -1829,6 +1829,7 @@
     "collection_protocol_registration": "Collection Protocol Registration",
     "specimen": "Specimen",
     "distribution_order": "Order",
+    "shipment": "Shipment",
     "form": "Form",
     "participant_reg": "Collection Protocol Registration",
     "participant": "Participant",

@@ -184,6 +184,10 @@
     <sql>call insert_entity_keywords('os_orders', 'name', 'distribution_order', 'name');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate shipment search keywords">
+    <sql>call insert_entity_keywords('os_shipments', 'name', 'shipment', 'name');</sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Search entity ranks">
     <sql>insert into os_search_entity_ranks values ('collection_protocol', 1);</sql>
     <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 2);</sql>

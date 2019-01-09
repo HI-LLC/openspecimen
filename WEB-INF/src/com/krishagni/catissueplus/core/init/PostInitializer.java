@@ -4,6 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
 import com.krishagni.catissueplus.core.administrative.domain.User;
@@ -45,6 +46,7 @@ public class PostInitializer implements InitializingBean {
 		addKeywordProvider(User.class, User.getEntityName(), "firstName,lastName,loginName,emailAddress");
 		addKeywordProvider(DistributionProtocol.class, DistributionProtocol.getEntityName(), "title,shortTitle,irbId");
 		addKeywordProvider(DistributionOrder.class, DistributionOrder.getEntityName(), "name");
+		addKeywordProvider(Shipment.class, Shipment.getEntityName(), "name");
 	}
 
 	private void addKeywordProvider(Class<?> entityClass, String entityName, String keywordProps) {
