@@ -1299,6 +1299,9 @@
     <property name="daoFactory" ref="biospecimenDaoFactory"/>
     <property name="resultProcessors">
       <list>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.CollectionProtocolSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
         <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.CprSearchResultProcessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>

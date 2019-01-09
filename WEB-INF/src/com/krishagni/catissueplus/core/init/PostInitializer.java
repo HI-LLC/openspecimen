@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.init;
 import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
+import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
 import com.krishagni.catissueplus.core.biospecimen.domain.Specimen;
@@ -29,6 +30,7 @@ public class PostInitializer implements InitializingBean {
 				.keywordProps("ppid")
 		);
 
+		addKeywordProvider(CollectionProtocol.class, CollectionProtocol.getEntityName(), "title,shortTitle,code");
 		addKeywordProvider(CollectionProtocolRegistration.class, CollectionProtocolRegistration.getEntityName(), "ppid");
 		addKeywordProvider(new EmpiUidSearchKeywordProvider());
 		addKeywordProvider(new MrnSearchKeywordProvider());
