@@ -6,6 +6,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.DistributionOrder;
 import com.krishagni.catissueplus.core.administrative.domain.DistributionProtocol;
+import com.krishagni.catissueplus.core.administrative.domain.Institute;
 import com.krishagni.catissueplus.core.administrative.domain.Shipment;
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
@@ -50,6 +51,7 @@ public class PostInitializer implements InitializingBean {
 		addKeywordProvider(DistributionOrder.class, DistributionOrder.getEntityName(), "name");
 		addKeywordProvider(Shipment.class, Shipment.getEntityName(), "name");
 		addKeywordProvider(SpecimenList.class, SpecimenList.getEntityName(), "name", (cart) -> ((SpecimenList) cart).getDeletedOn() != null);
+		addKeywordProvider(Institute.class, Institute.getEntityName(), "name");
 	}
 
 	private void addKeywordProvider(Class<?> entityClass, String entityName, String keywordProps) {
