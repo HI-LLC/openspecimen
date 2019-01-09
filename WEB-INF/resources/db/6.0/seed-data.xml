@@ -162,11 +162,17 @@
     <sql>call insert_entity_keywords('catissue_collection_protocol', 'code', 'collection_protocol', 'code');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate site name and code search keywords">
+    <sql>call insert_entity_keywords('catissue_site', 'name', 'site', 'name');</sql>
+    <sql>call insert_entity_keywords('catissue_site', 'code', 'site', 'code');</sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Search entity ranks">
     <sql>insert into os_search_entity_ranks values ('collection_protocol', 1);</sql>
     <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 2);</sql>
     <sql>insert into os_search_entity_ranks values ('visit', 3);</sql>
     <sql>insert into os_search_entity_ranks values ('specimen', 4);</sql>
     <sql>insert into os_search_entity_ranks values ('storage_container', 5);</sql>
+    <sql>insert into os_search_entity_ranks values ('site', 6);</sql>
   </changeSet>
 </databaseChangeLog>
