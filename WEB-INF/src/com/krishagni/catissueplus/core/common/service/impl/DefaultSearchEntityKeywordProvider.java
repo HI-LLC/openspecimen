@@ -3,6 +3,7 @@ package com.krishagni.catissueplus.core.common.service.impl;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanWrapper;
@@ -19,13 +20,20 @@ public class DefaultSearchEntityKeywordProvider extends AbstractSearchEntityKeyw
 
 	private List<String> props;
 
+	private Function<Object, Boolean> isEntityDeletedFn;
+
 	public DefaultSearchEntityKeywordProvider() {
 	}
 
 	public DefaultSearchEntityKeywordProvider(Class<?> entityClass, String entityName, String props) {
+		this(entityClass, entityName, props, null);
+	}
+
+	public DefaultSearchEntityKeywordProvider(Class<?> entityClass, String entityName, String props, Function<Object, Boolean> isEntityDeletedFn) {
 		this.entityClass = entityClass;
 		this.entityName = entityName;
 		this.props = Utility.csvToStringList(props);
+		this.isEntityDeletedFn = isEntityDeletedFn;
 	}
 
 	public DefaultSearchEntityKeywordProvider entityClass(Class<?> entityClass) {
@@ -69,6 +77,10 @@ public class DefaultSearchEntityKeywordProvider extends AbstractSearchEntityKeyw
 
 	@Override
 	public boolean isEntityDeleted(Object entity) {
+		if (isEntityDeletedFn != null) {
+			return isEntityDeletedFn.apply(entity);
+		}
+
 		BeanWrapper bean = PropertyAccessorFactory.forBeanPropertyAccess(entity);
 		String activityStatus = (String) bean.getPropertyValue("activityStatus");
 		return Status.ACTIVITY_STATUS_DISABLED.equals(activityStatus);

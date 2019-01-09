@@ -188,6 +188,32 @@
     <sql>call insert_entity_keywords('os_shipments', 'name', 'shipment', 'name');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate specimen carts search keywords" dbms="mysql">
+    <sql>
+      insert into
+        os_search_entity_keywords(entity, entity_id, name, value, status)
+      select
+        'specimen_list', c.identifier, 'name', lower(c.tag_label), 1
+      from
+        catissue_specimenlist_tags c
+      where
+        c.deleted_on is null
+    </sql>
+  </changeSet>
+
+  <changeSet author="vpawar" id="Populate specimen carts search keywords" dbms="oracle">
+    <sql>
+      insert into
+        os_search_entity_keywords(identifier, entity, entity_id, name, value, status)
+      select
+        os_search_entity_keywords_seq.nextval, 'specimen_list', c.identifier, 'name', lower(c.tag_label), 1
+      from
+        catissue_specimenlist_tags c
+      where
+        c.deleted_on is null
+    </sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Search entity ranks">
     <sql>insert into os_search_entity_ranks values ('collection_protocol', 1);</sql>
     <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 2);</sql>

@@ -1260,6 +1260,7 @@
         <ref bean="instSvc"/>
         <ref bean="userSvc"/>
         <ref bean="containerTypeSvc"/>
+        <ref bean="specimenListSvc"/>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.SpecimenRequestAccessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
@@ -1325,6 +1326,9 @@
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.ShipmentSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
+        <bean class="com.krishagni.catissueplus.core.biospecimen.services.impl.SpecimenListSearchResultProcessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
       </list>
