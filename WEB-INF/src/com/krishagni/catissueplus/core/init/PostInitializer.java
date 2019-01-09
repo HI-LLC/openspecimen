@@ -4,6 +4,7 @@ import org.springframework.beans.factory.InitializingBean;
 
 import com.krishagni.catissueplus.core.administrative.domain.Site;
 import com.krishagni.catissueplus.core.administrative.domain.StorageContainer;
+import com.krishagni.catissueplus.core.administrative.domain.User;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocol;
 import com.krishagni.catissueplus.core.biospecimen.domain.CollectionProtocolRegistration;
 import com.krishagni.catissueplus.core.biospecimen.domain.Participant;
@@ -39,6 +40,7 @@ public class PostInitializer implements InitializingBean {
 		addKeywordProvider(Specimen.class, Specimen.getEntityName(), "label,barcode");
 		addKeywordProvider(StorageContainer.class, StorageContainer.getEntityName(), "name,barcode");
 		addKeywordProvider(Site.class, Site.getEntityName(), "name,code");
+		addKeywordProvider(User.class, User.getEntityName(), "firstName,lastName,loginName,emailAddress");
 	}
 
 	private void addKeywordProvider(Class<?> entityClass, String entityName, String keywordProps) {

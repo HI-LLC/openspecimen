@@ -167,6 +167,13 @@
     <sql>call insert_entity_keywords('catissue_site', 'code', 'site', 'code');</sql>
   </changeSet>
 
+  <changeSet author="vpawar" id="Populate user search keywords">
+    <sql>call insert_entity_keywords('catissue_user', 'first_name', 'user', 'firstName');</sql>
+    <sql>call insert_entity_keywords('catissue_user', 'last_name', 'user', 'lastName');</sql>
+    <sql>call insert_entity_keywords('catissue_user', 'login_name', 'user', 'loginName');</sql>
+    <sql>call insert_entity_keywords('catissue_user', 'email_address', 'user', 'emailAddress');</sql>
+  </changeSet>
+
   <changeSet author="vpawar" id="Search entity ranks">
     <sql>insert into os_search_entity_ranks values ('collection_protocol', 1);</sql>
     <sql>insert into os_search_entity_ranks values ('collection_protocol_registration', 2);</sql>
@@ -174,5 +181,11 @@
     <sql>insert into os_search_entity_ranks values ('specimen', 4);</sql>
     <sql>insert into os_search_entity_ranks values ('storage_container', 5);</sql>
     <sql>insert into os_search_entity_ranks values ('site', 6);</sql>
+    <sql>insert into os_search_entity_ranks values ('user', 7);</sql>
+    <sql>insert into os_search_entity_ranks values ('distribution_protocol', 8);</sql>
+    <sql>insert into os_search_entity_ranks values ('distribution_order', 9);</sql>
+    <sql>insert into os_search_entity_ranks values ('shipment', 10);</sql>
+    <sql>insert into os_search_entity_ranks values ('specimen_list', 11);</sql>
+    <sql>insert into os_search_entity_ranks values ('institute', 12);</sql>
   </changeSet>
 </databaseChangeLog>
