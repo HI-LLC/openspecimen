@@ -1318,6 +1318,9 @@
         <bean class="com.krishagni.catissueplus.core.administrative.services.impl.UserSearchResultProcessor">
           <property name="daoFactory" ref="biospecimenDaoFactory"/>
         </bean>
+        <bean class="com.krishagni.catissueplus.core.administrative.services.impl.DistributionProtocolSearchResultProcessor">
+          <property name="daoFactory" ref="biospecimenDaoFactory"/>
+        </bean>
       </list>
     </property>
   </bean>
